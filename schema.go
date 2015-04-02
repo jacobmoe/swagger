@@ -18,6 +18,19 @@ func NewSchema() *Schema {
 	return &Schema{NewCommon()}
 }
 
+func (schema *Schema) ArrayOf(name string) *Schema {
+	schema.Set(SCHEMA_FIELD_TYPE, "array")
+	items := NewSchema()
+	items.Set(REFERENCE_FIELD_REF, "#/definitions/"+name)
+	schema.Set(SCHEMA_FIELD_ITEMS, items)
+	return schema
+}
+
+func (schema *Schema) RefOf(name string) *Schema {
+	schema.Set("$ref", "#/definitions/"+name)
+	return schema
+}
+
 func (s *Schema) Generate(indent bool) []byte {
 	var (
 		j   []byte

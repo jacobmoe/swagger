@@ -50,11 +50,11 @@ func (s *Common) Errors() []error {
 }
 
 func (p *Common) Set(name interface{}, object interface{}) {
-	p.data[fmt.Sprintf("%s", name)] = reflect.ValueOf(object)
+	p.data[fmt.Sprintf("%v", name)] = reflect.ValueOf(object)
 }
 
 func (s *Common) ExtendSlice(i interface{}, with interface{}) {
-	name := fmt.Sprintf("%s", i)
+	name := fmt.Sprintf("%v", i)
 	m, ok := s.data[name]
 	if !ok {
 		m = reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(with)), 0, 0)
@@ -63,7 +63,7 @@ func (s *Common) ExtendSlice(i interface{}, with interface{}) {
 }
 
 func (s *Common) ExtendMap(i interface{}, with interface{}) {
-	name := fmt.Sprintf("%s", i)
+	name := fmt.Sprintf("%v", i)
 	m, ok := s.data[name]
 	if !ok {
 		m = reflect.MakeMap(reflect.MapOf(reflect.TypeOf(""), reflect.TypeOf(with)))

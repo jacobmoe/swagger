@@ -31,7 +31,7 @@ func (schema *Schema) RefOf(name string) *Schema {
 	return schema
 }
 
-func (s *Schema) Generate(indent bool) []byte {
+func (s *Schema) Generate(indent bool, valid bool) []byte {
 	var (
 		j   []byte
 		err error
@@ -45,17 +45,19 @@ func (s *Schema) Generate(indent bool) []byte {
 		s.addError(err)
 		return nil
 	}
-	doc, err := spec.New(j, "")
-	if err != nil {
-		s.addError(err)
-		return nil
-	}
-	result := validate.Spec(doc, strfmt.Default)
-	if result != nil {
-		for _, desc := range result.(*swaggererrors.CompositeError).Errors {
-			s.addError(fmt.Errorf("The swagger spec is invalid against swagger specification %s. %s", doc.Version(), desc.Error()))
+	if valid {
+		doc, err := spec.New(j, "")
+		if err != nil {
+			s.addError(err)
+			return nil
 		}
-		return nil
+		result := validate.Spec(doc, strfmt.Default)
+		if result != nil {
+			for _, desc := range result.(*swaggererrors.CompositeError).Errors {
+				s.addError(fmt.Errorf("The swagger spec is invalid against swagger specification %s. %s", doc.Version(), desc.Error()))
+			}
+			return nil
+		}
 	}
 	return j
 }

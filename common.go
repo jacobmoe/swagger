@@ -13,40 +13,20 @@ type Common struct {
 	data   map[string]reflect.Value
 }
 
-type CommonInterface interface {
-	Errors() []error
-}
-
 func NewCommon() *Common {
 	return &Common{data: make(map[string]reflect.Value, 0), errors: make([]error, 0)}
 }
 
 func (s *Common) HasErrors() bool {
-	return (len(s.errors) > 0 || len(s.Errors()) > 0)
+	return len(s.errors) > 0
 }
 
 func (s *Common) Error() string {
 	var errors []string
-	for _, err := range s.Errors() {
+	for _, err := range s.errors {
 		errors = append(errors, err.Error())
 	}
 	return strings.Join(errors, "\n")
-}
-
-func (s *Common) Errors() []error {
-	var errors []error
-	for _, err := range s.errors {
-		errors = append(errors, err)
-	}
-	for _, v := range s.data {
-		if o, ok := v.Interface().(CommonInterface); ok {
-			errs := o.Errors()
-			for _, err := range errs {
-				errors = append(errors, err)
-			}
-		}
-	}
-	return errors
 }
 
 func (p *Common) Set(name interface{}, object interface{}) {
@@ -72,7 +52,7 @@ func (s *Common) ExtendMap(i interface{}, with interface{}) {
 	s.data[name] = m
 }
 
-func (s *Common) addError(err error) {
+func (s *Common) AddError(err error) {
 	_, fn, line, _ := runtime.Caller(1)
 	s.errors = append(s.errors, fmt.Errorf("[error] %s:%d %v", fn, line, err))
 }

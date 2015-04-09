@@ -18,6 +18,11 @@ func NewSchema() *Schema {
 	return &Schema{NewCommon()}
 }
 
+func (schema *Schema) TypeOf(name string) *Schema {
+	schema.Set(SCHEMA_FIELD_TYPE, name)
+	return schema
+}
+
 func (schema *Schema) ArrayOf(name string) *Schema {
 	schema.Set(SCHEMA_FIELD_TYPE, "array")
 	items := NewSchema()
@@ -42,19 +47,19 @@ func (s *Schema) Generate(indent bool, valid bool) []byte {
 		j, err = json.Marshal(s)
 	}
 	if err != nil {
-		s.addError(err)
+		s.AddError(err)
 		return nil
 	}
 	if valid {
 		doc, err := spec.New(j, "")
 		if err != nil {
-			s.addError(err)
+			s.AddError(err)
 			return nil
 		}
 		result := validate.Spec(doc, strfmt.Default)
 		if result != nil {
 			for _, desc := range result.(*swaggererrors.CompositeError).Errors {
-				s.addError(fmt.Errorf("The swagger spec is invalid against swagger specification %s. %s", doc.Version(), desc.Error()))
+				s.AddError(fmt.Errorf("The swagger spec is invalid against swagger specification %s. %s", doc.Version(), desc.Error()))
 			}
 			return nil
 		}
